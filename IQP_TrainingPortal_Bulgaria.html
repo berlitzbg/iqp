@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Берлиц България – Програма за квалификация на инструктори (IQP)</title>
+<style>
+  :root {
+    --berlitz-blue: #004FEF;
+    --berlitz-red: #FF495C;
+    --berlitz-green: #3DDC97;
+    --berlitz-purple: #643BA2;
+    --berlitz-charcoal: #1D1D1D;
+    --berlitz-powder: #FCFCFC;
+    --sidebar-width: 290px;
+    --header-height: 64px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4ff; color: var(--berlitz-charcoal); }
+
+  /* HEADER */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
+    background: var(--berlitz-blue);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,79,239,0.35);
+  }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .berlitz-logo {
+    height: 38px; width: auto;
+    mix-blend-mode: screen;
+    display: block;
+  }
+  .berlitz-logo-fallback {
+    background: rgba(255,255,255,0.15); color: #fff;
+    font-size: 20px; font-weight: 900;
+    padding: 6px 14px; border-radius: 4px; letter-spacing: 1px;
+  }
+  .header-title { color: #fff; font-size: 15px; font-weight: 600; }
+  .header-sub { color: rgba(255,255,255,0.7); font-size: 12px; }
+  .header-right { color: rgba(255,255,255,0.8); font-size: 13px; text-align: right; }
+
+  /* PROGRESS BAR */
+  .progress-bar-outer {
+    position: fixed; top: var(--header-height); left: 0; right: 0;
+    height: 4px; background: #dde; z-index: 999;
+  }
+  .progress-bar-inner {
+    height: 100%; background: var(--berlitz-green);
+    transition: width 0.5s ease; width: 0%;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; padding-top: calc(var(--header-height) + 4px); min-height: 100vh; }
+
+  /* SIDEBAR */
+  aside {
+    width: var(--sidebar-width); flex-shrink: 0;
+    background: #ffffff;
+    position: fixed; top: calc(var(--header-height) + 4px);
+    bottom: 0; left: 0; overflow-y: auto;
+    padding: 12px 0 24px;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+  }
+  .sidebar-section {
+    padding: 16px 18px 6px;
+    font-size: 10px; font-weight: 700;
+    color: #888; text-transform: uppercase; letter-spacing: 1px;
+    border-top: 1px solid #e0e8ff;
+    margin-top: 8px;
+  }
+  .sidebar-section:first-child { border-top: none; margin-top: 0; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px 9px 14px; cursor: pointer;
+    color: var(--berlitz-charcoal); font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all 0.18s;
+  }
+  .nav-item:hover { background: #f0f4ff; color: var(--berlitz-charcoal); }
+  .nav-item.active {
+    background: #e6eeff;
+    border-left-color: var(--berlitz-blue);
+    color: var(--berlitz-charcoal);
+  }
+  .nav-num {
+    background: #e0e8ff; color: var(--berlitz-blue);
+    font-size: 10px; font-weight: 700;
+    min-width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-item.active .nav-num { background: var(--berlitz-blue); color: #fff; }
+  .nav-item.done .nav-num { background: var(--berlitz-green); color: var(--berlitz-charcoal); }
+  .nav-text { line-height: 1.3; flex: 1; }
+  .nav-check { color: var(--berlitz-green); font-size: 13px; opacity: 0; flex-shrink: 0; }
+  .nav-item.done .nav-check { opacity: 1; }
+
+  /* MAIN */
+  main { margin-left: var(--sidebar-width); flex: 1; padding: 32px 40px; overflow-x: hidden; }
+
+  /* HOME HERO */
+  .home-hero {
+    background: linear-gradient(135deg, var(--berlitz-blue), #0038c0);
+    color: #fff; border-radius: 12px;
+    padding: 44px 40px; margin-bottom: 28px;
+    position: relative; overflow: hidden;
+  }
+  .home-hero-logo {
+    position: absolute; right: 20px; bottom: 10px;
+    height: 90px; width: auto;
+    opacity: 0.08;
+    pointer-events: none; user-select: none;
+  }
+  .badge {
+    display: inline-block; background: var(--berlitz-green); color: var(--berlitz-charcoal);
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+    margin-bottom: 12px; letter-spacing: 0.5px;
+  }
+  .home-hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .home-hero .subtitle { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 16px; }
+  .home-hero p { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.7; max-width: 580px; }
+
+  .stats-row { display: flex; gap: 14px; margin: 22px 0 28px; flex-wrap: wrap; }
+  .stat-card {
+    background: #fff; border-radius: 10px; padding: 16px 20px;
+    flex: 1; min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0,79,239,0.1);
+    border-top: 3px solid var(--berlitz-blue);
+  }
+  .stat-card .num { font-size: 26px; font-weight: 800; color: var(--berlitz-blue); }
+  .stat-card .lbl { font-size: 12px; color: #666; margin-top: 2px; }
+
+  /* MODULE OVERVIEW CARDS */
+  .overview-section { margin-bottom: 28px; }
+  .overview-section h3 {
+    font-size: 13px; font-weight: 700; color: #888;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #e8eaf0;
+  }
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .overview-card {
+    background: #fff; border-radius: 8px; padding: 14px 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    cursor: pointer; transition: all 0.18s;
+    border-left: 3px solid #ddd;
+  }
+  .overview-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,79,239,0.15); border-left-color: var(--berlitz-blue); }
+  .overview-card .oc-label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+  .overview-card .oc-title { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-top: 5px; line-height: 1.4; }
+
+  /* PAGE HERO */
+  .page-hero {
+    position: relative;
+    width: calc(100% + 80px);
+    margin: -32px -40px 28px -40px;
+    height: 260px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--berlitz-dark), #2d2d44);
+  }
+  .page-hero img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    display: block;
+  }
+  .page-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,30,0.45) 0%, rgba(10,10,30,0.75) 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 28px 36px;
+  }
+  .page-hero-overlay .pg-section {
+    font-size: 11px; color: var(--berlitz-green); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px;
+  }
+  .page-hero-overlay h2 {
+    font-size: 26px; font-weight: 800; color: #fff;
+    line-height: 1.25; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* CONTENT CARDS */
+  .content-card {
+    background: #fff; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;
+  }
+  .content-card-header {
+    padding: 14px 18px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background 0.18s;
+  }
+  .content-card-header:hover { background: #fafafa; }
+  .content-card-header.open { border-bottom: 1px solid #eee; }
+  .cc-title { font-size: 15px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 9px; }
+  .cc-icon { font-size: 17px; }
+  .content-card-body { padding: 18px 20px; display: none; }
+  .content-card-body.open { display: block; }
+  .chevron { transition: transform 0.3s; font-size: 11px; color: #999; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* PLACEHOLDER */
+  .placeholder-box {
+    background: #f8f9fb; border: 2px dashed #d0d5e0;
+    border-radius: 10px; padding: 48px 32px;
+    text-align: center; color: #888;
+  }
+  .placeholder-box .ph-icon { font-size: 40px; margin-bottom: 12px; }
+  .placeholder-box h3 { font-size: 16px; font-weight: 700; color: #555; margin-bottom: 8px; }
+  .placeholder-box p { font-size: 13px; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+  /* TEXT UTILITIES */
+  .key-points { list-style: none; }
+  .key-points li {
+    padding: 8px 14px 8px 36px; position: relative;
+    border-bottom: 1px solid #f0f0f0; font-size: 14px; line-height: 1.6; color: #333;
+  }
+  .key-points li:last-child { border-bottom: none; }
+  .key-points li::before { content: '✓'; position: absolute; left: 12px; top: 9px; color: var(--berlitz-blue); font-weight: 700; }
+
+  .highlight-box {
+    background: #f0f4ff; border-left: 4px solid var(--berlitz-blue);
+    padding: 13px 16px; border-radius: 0 8px 8px 0; margin: 10px 0;
+    font-size: 14px; color: #333; line-height: 1.7;
+  }
+  .info-box {
+    background: #f0fff8; border-left: 4px solid var(--berlitz-green);
+    padding: 13px 16px; border-radius: 0 8px 8px 0; margin: 10px 0;
+    font-size: 14px; color: #333; line-height: 1.7;
+  }
+
+  /* NAV BUTTONS */
+  .nav-buttons { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 20px; border-radius: 6px; border: none;
+    cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all 0.18s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--berlitz-blue); color: #fff; }
+  .btn-primary:hover { background: #0038c0; }
+  .btn-secondary { background: #fff; color: var(--berlitz-charcoal); border: 1px solid #dde; }
+  .btn-secondary:hover { background: #f0f4ff; }
+  .btn-complete { background: var(--berlitz-green); color: var(--berlitz-charcoal); }
+  .btn-complete:hover { background: #2bc97f; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  @media (max-width: 768px) {
+    aside { width: 240px; }
+    main { margin-left: 240px; padding: 20px; }
+  }
+  @media (max-width: 560px) {
+    aside { display: none; }
+    main { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <img src="images/berlitz-logo.png" alt="Berlitz" class="berlitz-logo" onerror="this.outerHTML='<div class=&quot;berlitz-logo-fallback&quot;>BERLITZ</div>'">
+    <div>
+      <div class="header-title">Програма за квалификация на инструктори</div>
+      <div class="header-sub">IQP 2020 · Берлиц България</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="progressText">Прогрес: 0 / 9</div>
+    <div style="font-size:11px;margin-top:2px;">теми завършени</div>
+  </div>
+</header>
+
+<div class="progress-bar-outer">
+  <div class="progress-bar-inner" id="progressBar"></div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+    <div class="nav-num">🏠</div>
+    <div class="nav-text">Начало</div>
+  </div>
+
+  <div class="sidebar-section">Въведение в метода Берлиц</div>
+
+  <div class="nav-item" onclick="showPage('intro1')" id="nav-intro1">
+    <div class="nav-num">1</div>
+    <div class="nav-text">Предварително четене</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('intro2')" id="nav-intro2">
+    <div class="nav-num">2</div>
+    <div class="nav-text">Разликата Берлиц</div>
+    <div class="nav-check">✓</div>
+  </div>
+
+  <div class="sidebar-section">Техники на преподаване в Берлиц</div>
+
+  <div class="nav-item" onclick="showPage('t1')" id="nav-t1">
+    <div class="nav-num">3</div>
+    <div class="nav-text">Работа с начинаещи</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t2')" id="nav-t2">
+    <div class="nav-num">4</div>
+    <div class="nav-text">Техники на въвеждане</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t3')" id="nav-t3">
+    <div class="nav-num">5</div>
+    <div class="nav-text">Практикуване</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t4')" id="nav-t4">
+    <div class="nav-num">6</div>
+    <div class="nav-text">Свободна практика</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t5')" id="nav-t5">
+    <div class="nav-num">7</div>
+    <div class="nav-text">Упражняване на слушане и четене</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t6')" id="nav-t6">
+    <div class="nav-num">8</div>
+    <div class="nav-text">Урочна цел, ход на урока и завършване</div>
+    <div class="nav-check">✓</div>
+  </div>
+  <div class="nav-item" onclick="showPage('t7')" id="nav-t7">
+    <div class="nav-num">9</div>
+    <div class="nav-text">Техники на коригиране</div>
+    <div class="nav-check">✓</div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div class="badge">IQP 2020 · Берлиц България</div>
+    <h1>Програма за квалификация на инструктори</h1>
+    <div class="subtitle">Instructor Qualification Program – Berlitz Bulgaria</div>
+    <p>Добре дошли в онлайн портала за обучение на нови инструктори на Берлиц България. Изучавайте темите по ред, гледайте видеата и свалете PDF наръчниците за справка.</p>
+    <img src="images/berlitz-logo.png" class="home-hero-logo" alt="">
+  </div>
+
+  <div class="overview-section">
+    <h3>Въведение в метода Берлиц</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="showPage('intro1')">
+        <div class="oc-label">Тема 1</div>
+        <div class="oc-title">Предварително четене</div>
+      </div>
+      <div class="overview-card" onclick="showPage('intro2')">
+        <div class="oc-label">Тема 2</div>
+        <div class="oc-title">Разликата Берлиц</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overview-section">
+    <h3>Техники на преподаване в Берлиц</h3>
+    <div class="overview-grid">
+      <div class="overview-card" onclick="showPage('t1')">
+        <div class="oc-label">Тема 3</div>
+        <div class="oc-title">Работа с начинаещи</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t2')">
+        <div class="oc-label">Тема 4</div>
+        <div class="oc-title">Техники на въвеждане</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t3')">
+        <div class="oc-label">Тема 5</div>
+        <div class="oc-title">Практикуване</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t4')">
+        <div class="oc-label">Тема 6</div>
+        <div class="oc-title">Свободна практика</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t5')">
+        <div class="oc-label">Тема 7</div>
+        <div class="oc-title">Упражняване на слушане и четене</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t6')">
+        <div class="oc-label">Тема 8</div>
+        <div class="oc-title">Урочна цел, ход на урока и завършване</div>
+      </div>
+      <div class="overview-card" onclick="showPage('t7')">
+        <div class="oc-label">Тема 9</div>
+        <div class="oc-title">Техники на коригиране</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>📌 Как да използвате портала:</strong> Изучавайте темите в реда, в който са наредени. Всяка тема съдържа видео и PDF наръчник/ци за сваляне.
+  </div>
+</div>
+
+<!-- INTRO 1 -->
+<div class="page" id="page-intro1">
+  <div class="page-hero">
+    <img src="images/intro1.jpg" alt="Предварително четене" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Въведение в метода Берлиц · Тема 1</div>
+      <h2>Предварително четене</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;">
+        Научете повече за Берлиц като компания, историята на езиковото обучение и Метода на Берлиц. По време на първата присъствена сесия, в която ще участвате, ще прегледате наученото заедно с вашия фасилитатор.
+      </p>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Предварително четиво на Берлиц</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да свалите предварителното четиво, което трябва да прочетете като въведение към вашата програма.
+      </p>
+      <a href="PDFs/IQP Pre-Reading BG.PDF" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Свали
+      </a>
+    </div>
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('home')">← Начало</button>
+    <button class="btn btn-complete" onclick="markDone('intro1'); showPage('intro2')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- INTRO 2 -->
+<div class="page" id="page-intro2">
+  <div class="page-hero">
+    <img src="images/intro2.jpg" alt="Разликата Берлиц" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Въведение в метода Берлиц · Тема 2</div>
+      <h2>Разликата Берлиц</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        В този модул ще разберете как преподаваме, защо преподаваме по този начин и как прилагаме нашите принципи на преподаване на практика в класната стая.
+      </p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите работния лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за Разликата Берлиц</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен лист – Разликата Берлиц</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите работния лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изучавате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на работния лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — работният лист не е задължителен за продължаване.
+      </p>
+      <a href="PDFs/Berlitz_Difference_Worksheet.pdf" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли работния лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Разликата Берлиц – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите резюметата на ключовите идеи от този модул.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=27" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Методът на Берлиц
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=28" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Как възрастните учат езици
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=29" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Мотивация
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=30" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Множествени интелигентности
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=31" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Предпочитания към стила на учене
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=32" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Стратегии на обучаемия
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('intro1')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('intro2'); showPage('t1')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T1 -->
+<div class="page" id="page-t1">
+  <div class="page-hero">
+    <img src="images/t1.jpg" alt="Работа с начинаещи" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 3</div>
+      <h2>Работа с начинаещи</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">👋</span> Добре дошли!</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        За да завършите тази част от курса, трябва да:
+      </p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула и завършите финалния тест, който потвърждава вашето разбиране</li>
+        <li>Изтеглите ресурсите за този модул, които стават достъпни след като завършите онлайн модула</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Работа с начинаещи</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изучавате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="PDFs/Teaching_Beginners_Worksheet.pdf" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Работа с начинаещи – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Работа с начинаещи</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите резюме на ключовите идеи и техники, разгледани в онлайн модула за работа с начинаещи. След като изтеглите документа, можете да отбележите тази дейност като завършена.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=24" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Резюме на модула – Работа с начинаещи
+      </a>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('intro2')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t1'); showPage('t2')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T2 -->
+<div class="page" id="page-t2">
+  <div class="page-hero">
+    <img src="images/t2.jpg" alt="Техники на въвеждане" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 4</div>
+      <h2>Техники на въвеждане</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        Във всеки урок ще представяте нов езиков материал на курсистите. В този модул ще се фокусирате върху принципите на техниките за въвеждане на нови езикови елементи — така че значението им да бъде ясно и курсистите да могат веднага да ги използват. Освен това ще се запознаете с набор от техники за въвеждане на нови езикови елементи, приложими в различни ситуации.
+      </p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за техниките за въвеждане на нови езикови елементи</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Техники на въвеждане</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изучавате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Работният Лист не е задължителен за продължаване към онлайн модула.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=881" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Техники на въвеждане – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула за техниките за въвеждане на нови езикови елементи и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Техники на въвеждане</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюметата на идеите и техниките за въвеждане на нови езикови елементи от онлайн модула, който изучихте.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=7901" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Резюме на модула – Техники на въвеждане
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=7902" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи – Техники на въвеждане
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t1')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t2'); showPage('t3')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T3 -->
+<div class="page" id="page-t3">
+  <div class="page-hero">
+    <img src="images/t3.jpg" alt="Практикуване" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 5</div>
+      <h2>Практикуване</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        Във всеки урок ще помагате на курсистите да упражняват новия езиков материал, който изучават. Чрез този модул ще разберете „защо" и „как" на практикуването — защо то е важно в нашите уроци и как най-добре да подпомогнете обучаемите в процеса.
+      </p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за упражненията за практикуване</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Практикуване</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изучавате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=882" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Практикуване – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Практикуване</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюметата на ключовите идеи и техники от онлайн модула за практикуване. Можете да отбележите тази дейност като завършена, след като сте изтеглили материалите.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=44" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи (PDF)
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=45" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови техники (PDF)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t2')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t3'); showPage('t4')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T4 -->
+<div class="page" id="page-t4">
+  <div class="page-hero">
+    <img src="images/t4.jpg" alt="Свободна практика" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 6</div>
+      <h2>Свободна практика</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:12px;">
+        Днес ВСИЧКО, което знаем за усвояването на езици, подчертава важността на използването на езика за общуване и комуникация. В този модул ще:
+      </p>
+      <ul style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>разсъждавате върху ситуациите, в които водим разговори в реалния живот, и върху това какво се случва по време на тях;</li>
+        <li>се фокусирате върху това как да организирате успешни дейности за гладко говорене — как да накарате курсистите да заговорят в клас;</li>
+        <li>разгледате всички различни дейности за гладко говорене, които са част от уроците на Берлиц.</li>
+      </ul>
+      <p>&nbsp;</p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за дейностите за гладко говорене</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Свободна практика</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изгледате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=883" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Свободна практика – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула за дейностите за гладко говорене и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Свободна практика</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюметата на ключовите идеи и техники от онлайн модула за дейностите за гладко говорене. Можете да отбележите тази дейност като завършена, след като сте изтеглили материалите.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=47" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи (PDF)
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=48" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови техники (PDF)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t3')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t4'); showPage('t5')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T5 -->
+<div class="page" id="page-t5">
+  <div class="page-hero">
+    <img src="images/t5.jpg" alt="Упражняване на слушане и четене" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 7</div>
+      <h2>Упражняване на слушане и четене</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        Чрез този модул ще научите как използваме упражненията за слушане и четене в клас:
+      </p>
+      <ul style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>За да осигурим полезна езикова среда, която отразява и подкрепя реалната употреба на езика от страна на курсистите извън класа;</li>
+        <li>За да откроим нов езиков материал и да помогнем на обучаемите да използват нови думи и изрази;</li>
+        <li>За да помогнем на курсистите да развият реални умения за четене на целевия език — например четене с разбиране на основното съдържание;</li>
+        <li>И винаги като отправна точка за дейности за гладко говорене — за да увеличим максимално времето за говорене на курсистите в клас.</li>
+      </ul>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-top:16px;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за упражненията за слушане и четене</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Упражняване на слушане и четене</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изгледате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=884" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Упражняване на слушане и четене – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула за упражненията за слушане и четене и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Упражняване на слушане и четене</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюметата на ключовите идеи и техники от онлайн модула за упражненията за слушане и четене. Можете да отбележите тази дейност като завършена, след като сте изтеглили материалите.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=50" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови идеи (PDF)
+        </a>
+        <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=51" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+          ⬇ Ключови техники (PDF)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t4')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t5'); showPage('t6')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T6 -->
+<div class="page" id="page-t6">
+  <div class="page-hero">
+    <img src="images/t6.jpg" alt="Урочна цел, ход на урока и завършване" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 8</div>
+      <h2>Урочна цел, ход на урока и завършване</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        Разгледайте постоянните и променливите фактори, които влияят върху начина, по който общата цел на урока може да бъде персонализирана за конкретен курсист. Разберете защо поставянето на урочна цел за говорене е мотивиращо и полезно за обучаемите. Помислете върху начините да постигнете съгласуваност на целта с курсиста.
+      </p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за урочната цел, хода на урока и завършването</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Урочна цел, ход на урока и завършване</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изгледате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=885" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Урочна цел, ход на урока и завършване – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Урочна цел, ход на урока и завършване</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюметата на ключовите идеи и техники от онлайн модула. Можете да отбележите тази дейност като завършена, след като сте изтеглили материалите.
+      </p>
+      <a href="PDFs/Setting_Goals_Resources.pdf" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Ключови идеи (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t5')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t6'); showPage('t7')">✓ Завърши и продължи →</button>
+  </div>
+</div>
+
+<!-- T7 -->
+<div class="page" id="page-t7">
+  <div class="page-hero">
+    <img src="images/t7.jpg" alt="Техники на коригиране" onerror="this.style.display='none'">
+    <div class="page-hero-overlay">
+      <div class="pg-section">Техники на преподаване в Берлиц · Тема 9</div>
+      <h2>Техники на коригиране</h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📖</span> Въведение</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:15px;line-height:1.8;color:#333;margin-bottom:16px;">
+        В първата половина на този модул ще се фокусирате върху факторите, които влияят върху решението на преподавателя — дали и как да коригира. Във втората половина ще разгледате принципите на ефективното коригиране и техниките, които можете да прилагате.
+      </p>
+      <p style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">За да завършите тази част от курса, трябва да:</p>
+      <ol style="font-size:14px;line-height:2;color:#333;padding-left:22px;">
+        <li>Изтеглите Работния Лист за вашите бележки</li>
+        <li>Изгледате онлайн модула за техниките на коригиране</li>
+        <li>Изтеглите ключови ресурси за тази тема</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📓</span> Работен Лист – Техники на коригиране</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Натиснете, за да изтеглите Работния Лист. Попълването му е доброволно — можете да го разпечатате и попълвате, докато изгледате онлайн модула и по време на практическото обучение, или да го запазите като справочен материал. Той служи за вашите лични записки по тази тема.
+      </p>
+      <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px;">
+        Статусът ви ще бъде отбелязан като завършен за тази точка, след като сте кликнали за отваряне и изтегляне на Работния Лист. Ако срещнете проблем с изтеглянето, преминете направо към онлайн модула в следващата секция — Работният Лист не е задължителен за продължаване.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=886" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Изтегли Работния Лист (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">🎬</span> Техники на коригиране – Онлайн модул</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Гледайте онлайн модула за техниките на коригиране и завършете финалния тест. За да бъде отбелязан като завършен, трябва да постигнете резултат от поне 70%.
+      </p>
+      <div style="background:#f8f9fb;border-radius:8px;padding:40px;text-align:center;border:2px dashed #d0d5e0;">
+        <div style="font-size:36px;margin-bottom:10px;">🎬</div>
+        <p style="font-size:13px;color:#888;">Видеото ще бъде добавено тук</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="content-card-header open" onclick="toggleSection(this)">
+      <div class="cc-title"><span class="cc-icon">📥</span> Ресурси – Техники на коригиране</div>
+      <span class="chevron open">▼</span>
+    </div>
+    <div class="content-card-body open">
+      <p style="font-size:14px;line-height:1.8;color:#333;margin-bottom:18px;">
+        Изтеглете резюмето на ключовите идеи и техники от онлайн модула за техниките на коригиране. Можете да отбележите тази дейност като завършена, след като сте изтеглили материала.
+      </p>
+      <a href="https://learningcenter.berlitz.net/mod/resource/view.php?id=55" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--berlitz-blue);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;">
+        ⬇ Ключови идеи (PDF)
+      </a>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="showPage('t6')">← Предишна тема</button>
+    <button class="btn btn-complete" onclick="markDone('t7'); showCompletionMessage()">🏆 Завърши програмата!</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+  const completed = new Set();
+  const TOTAL = 9;
+
+  const pageTitles = {
+    'home':   'Берлиц България – IQP',
+    'intro1': 'Предварително четене – Берлиц IQP',
+    'intro2': 'Разликата Берлиц – Берлиц IQP',
+    't1':     'Работа с начинаещи – Берлиц IQP',
+    't2':     'Техники на въвеждане – Берлиц IQP',
+    't3':     'Практикуване – Берлиц IQP',
+    't4':     'Свободна практика – Берлиц IQP',
+    't5':     'Упражнения за слушане и четене – Берлиц IQP',
+    't6':     'Урочна цел, ход на урока и завършване – Берлиц IQP',
+    't7':     'Техники на коригиране – Берлиц IQP',
+  };
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    const navEl = document.getElementById('nav-' + id);
+    if (navEl) navEl.classList.add('active');
+    document.title = pageTitles[id] || 'Берлиц България – IQP';
+    window.scrollTo(0, 0);
+  }
+
+  function markDone(id) {
+    completed.add(id);
+    const navEl = document.getElementById('nav-' + id);
+    if (navEl) navEl.classList.add('done');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const count = completed.size;
+    document.getElementById('progressText').textContent = 'Прогрес: ' + count + ' / ' + TOTAL;
+    document.getElementById('progressBar').style.width = (count / TOTAL * 100) + '%';
+  }
+
+  function toggleCheck(row) {
+    const box = row.querySelector('[id^="checkBox"]');
+    const checked = box.dataset.checked === '1';
+    if (!checked) {
+      box.dataset.checked = '1';
+      box.style.background = '#1e7e34';
+      box.style.borderColor = '#1e7e34';
+      box.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      box.dataset.checked = '0';
+      box.style.background = '';
+      box.style.borderColor = '#ccc';
+      box.innerHTML = '';
+    }
+  }
+
+  function showCompletionMessage() {
+    markDone('t7');
+    const main = document.querySelector('#page-t7');
+    const existing = main.querySelector('.completion-banner');
+    if (!existing) {
+      const banner = document.createElement('div');
+      banner.className = 'completion-banner';
+      banner.style.cssText = 'background:linear-gradient(135deg,#1e7e34,#28a745);color:#fff;border-radius:12px;padding:32px;margin-top:20px;text-align:center;';
+      banner.innerHTML = '<div style="font-size:44px;margin-bottom:10px">🎉</div><h3 style="font-size:20px;font-weight:800;margin-bottom:8px">Поздравления!</h3><p style="font-size:14px;opacity:0.9">Завършихте успешно Програмата за квалификация на инструктори на Берлиц България!</p>';
+      main.appendChild(banner);
+    }
+  }
+</script>
+</body>
+</html>
